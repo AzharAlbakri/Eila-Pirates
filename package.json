@@ -10,8 +10,15 @@
   "dependencies": {
     "body-parser": "*",
     "express": "*",
+    "jsonwebtoken": "^8.4.0",
     "mongoose": "*",
-    "nodemon": "^1.18.9"
+    "nodemon": "^1.18.9",
+    "passport": "^0.4.0",
+    "passport-auth-token": "^1.0.1",
+    "passport-http-bearer": "^1.0.1",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0",
+    "request": "^2.88.0"
   },
   "author": "azhar",
   "license": "ISC"
