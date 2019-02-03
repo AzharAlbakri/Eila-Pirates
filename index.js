@@ -5,6 +5,7 @@ const PORT = process.env.PORT || 5000;
 var request = require("request");
 const passport = require("passport");
 const BearerStrategy = require("passport-http-bearer").Strategy;
+var countSmileys = require('./helper/countSmileys').countSmileys
 
 const app = express();
 
@@ -30,44 +31,22 @@ db.on("error", function() {
 db.once("open", function() {
   console.log("mongoose connected successfully");
 });
+
 let collection = db.collection("Pirates");
 let User = db.collection("users");
+let bearerToken = db.collection("token");
+
 
 //Passport Authintication
-passport.use(
-  new BearerStrategy(function(token, done) {
-    if (token === null) {
-      return done(err);
-    }
-    if (token) {
-      return done(null, true);
-    }
-  })
-);
-
-//Count smiley faces
-function countSmileys(arr) {
-  let count = 0;
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[i].length === 3) {
-      if (
-        (arr[i][0] === ";" || arr[i][0] === "8") &&
-        (arr[i][1] === "-" || arr[i][1] === "~") &&
-        (arr[i][2] === ")" || arr[i][2] === "|")
-      ) {
-        count += 1;
-      }
-    } else if (arr[i].length === 2) {
-      if (
-        (arr[i][0] === ";" || arr[i][0] === "8") &&
-        (arr[i][1] === ")" || arr[i][1] === "|")
-      ) {
-        count += 1;
-      }
-    }
+passport.use(new BearerStrategy(
+  function(token, done) {
+    bearerToken.findOne({ token: token }, function (err, user) {
+      if (err) { return done(err); }
+      if (!user) { return done(null, false); }
+      return done(null, user);
+    });
   }
-  return count;
-}
+));
 
 //Get data
 //Pirates API
@@ -103,6 +82,7 @@ app.get(
   }
 );
 
+//Listen to port
 app.listen(PORT, function() {
   console.error(
     `Node cluster worker ${process.pid}: listening on port ${PORT}`
